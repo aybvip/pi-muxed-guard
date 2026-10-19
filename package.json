@@ -1,0 +1,19 @@
+{
+  "name": "pi-muxed-guard",
+  "version": "0.1.0",
+  "description": "Read-only decoder and validator for Pi muxed (M...) deposit addresses. Decomposes to G + 64-bit ID and verifies CRC16-XModem checksum.",
+  "type": "module",
+  "main": "muxed-guard.mjs",
+  "bin": {
+    "pi-muxed-guard": "./muxed-guard.mjs"
+  },
+  "scripts": {
+    "test": "node --test",
+    "guard": "node muxed-guard.mjs"
+  },
+  "keywords": ["pi", "stellar", "muxed", "strkey", "deposit", "safety", "read-only"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}
