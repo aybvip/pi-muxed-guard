@@ -8,7 +8,7 @@
     "pi-muxed-guard": "./muxed-guard.mjs"
   },
   "scripts": {
-    "test": "node --test",
+    "test": "node --test test.mjs",
     "guard": "node muxed-guard.mjs"
   },
   "keywords": ["pi", "stellar", "muxed", "strkey", "deposit", "safety", "read-only"],

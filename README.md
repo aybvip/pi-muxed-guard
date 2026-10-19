@@ -73,6 +73,26 @@ Verified against real Pi Mainnet addresses:
 
 Both checksums validate and both round-trip exactly.
 
+## Tests
+
+```bash
+node --test test.mjs
+```
+
+20 offline checks, no network required. They cover:
+
+- base32 round-trip over all 256 byte values, and rejection of invalid characters
+- the standard CRC-16/XMODEM check value (`"123456789"` → `0x31C3`)
+- the two measured Pi Mainnet `G…` addresses decoding to their known ed25519 keys
+- `M…` length is exactly 69 with **no** `=` padding
+- `(G, id) → M → (G, id)` round-trips exactly for `0`, `1`, `2^32`, `2^64−1`
+- a single flipped base32 character is never reported `VALID`
+- `decodeG` rejects `M…` and `decodeM` rejects `G…`
+- the CLI exits `0` / `2` / `1` as documented
+
+The codec lives in `codec.mjs` as pure functions; `muxed-guard.mjs` is only the
+CLI wrapper, so the arithmetic is testable without spawning a process.
+
 ## See also
 
 - `pi-fungibility` — why a payment carries no observable per-unit origin
