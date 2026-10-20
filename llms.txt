@@ -1,0 +1,51 @@
+# Pi Muxed Address Guard — llms.txt
+# A read-only, zero-dependency verifier for Pi muxed (M...) deposit addresses.
+# Decomposes M... into its G... base account plus a 64-bit ID.
+
+> A muxed address is G... PLUS a 64-bit recipient ID. It selects WHO on a shared
+> account receives the payment. It is NOT an asset tag and NOT proof of origin.
+
+## What it is
+- read-only, zero-dependency, Node (ESM), Node >= 18
+- codec.mjs: pure strkey codec + CRC16-XModem (importable, no CLI)
+- muxed-guard.mjs: the CLI (--address --build --id --check-g)
+- test.mjs: 20 offline checks (node --test)
+- never builds, signs or submits a transaction; never writes; no API keys
+
+## Why it exists
+Exchanges hand out muxed addresses as "your deposit address". A mistyped or
+mismatched ID is irreversible: the ledger has no per-coin origin and no recall
+operation, so funds sent to the wrong ID on the same account cannot be undone.
+This tool makes the decomposition visible BEFORE a send, not after.
+
+It answers three questions with measurement:
+1. Is this a valid M... address? (CRC16-XModem checksum)
+2. Which G... base account and which 64-bit ID does it encode?
+3. Does rebuilding from (G, id) reproduce the exact input string? (round-trip)
+
+## The codec
+- RFC 4648 base32, no padding; M... is exactly 69 characters
+- checksum: CRC16-XModem over version byte + 32-byte ed25519 key + 8-byte
+  big-endian ID; standard check value "123456789" -> 0x31C3
+- verified against real Pi Mainnet addresses: GDFNWH6.../cadb1fd9... and
+  GALYJFJ.../1784953d...; both validate and both round-trip exactly
+
+## Output shape
+JSON on stdout: input, baseAccountEd25519, muxedId, checksumValid,
+rebuiltFromGAndId, roundTripExact, verdict ("VALID").
+Exit codes: 0 valid; 2 invalid checksum or failed round-trip; 1 error.
+
+## Usage
+- node muxed-guard.mjs --address M...
+- node muxed-guard.mjs --build G... --id 12345
+- node muxed-guard.mjs --check-g G...
+- node --test test.mjs
+
+## Not claimed
+- that the M... ID identifies a PERSON (the ledger records an address and an ID,
+  never a name; attribution is external)
+- that a valid checksum means the address is SAFE (it only proves the string is
+  well-formed; whether that ID is yours at that venue is an off-chain question)
+- that the base G... account belongs to a known venue (on-chain data never proves
+  venue ownership)
+- that Pi Network has adopted, reviewed or endorsed this
